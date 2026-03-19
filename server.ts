@@ -18,7 +18,7 @@ async function startServer() {
 
   // API Endpoint for Mautic Form Submission
   app.get('/api/health', async (req, res) => {
-    const mauticUrl = process.env.MAUTIC_URL || 'https://crm.nambds.vn';
+    const mauticUrl = 'https://crm.nambds.vn';
     try {
       const response = await fetch(mauticUrl, { method: 'HEAD' });
       res.json({ 
@@ -44,14 +44,9 @@ async function startServer() {
   app.post('/api/submit-form', async (req, res) => {
     const { firstname, email } = req.body;
     
-    // Use environment variables or defaults
-    const mauticUrl = process.env.MAUTIC_URL || 'https://crm.nambds.vn';
-    const mauticFormId = process.env.MAUTIC_FORM_ID;
-
-    if (!mauticFormId) {
-      console.error('MAUTIC_FORM_ID is not configured');
-      return res.status(500).json({ error: 'Mautic configuration error' });
-    }
+    // Hardcoded Mautic configuration as requested
+    const mauticUrl = 'https://crm.nambds.vn';
+    const mauticFormId = '11';
 
     try {
       // Mautic expects application/x-www-form-urlencoded for its form submission endpoint

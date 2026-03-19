@@ -25,14 +25,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Missing firstname or email' });
   }
 
-  // Use environment variables or defaults
-  const mauticUrl = process.env.MAUTIC_URL || 'https://crm.nambds.vn';
-  const mauticFormId = process.env.MAUTIC_FORM_ID;
-
-  if (!mauticFormId) {
-    console.error('MAUTIC_FORM_ID is not configured');
-    return res.status(500).json({ error: 'Mautic configuration error' });
-  }
+  // Hardcoded Mautic configuration as requested
+  const mauticUrl = 'https://crm.nambds.vn';
+  const mauticFormId = '11';
 
   try {
     const mauticParams = new URLSearchParams();

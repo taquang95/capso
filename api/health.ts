@@ -15,7 +15,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const mauticUrl = process.env.MAUTIC_URL || 'https://crm.nambds.vn';
+  const mauticUrl = 'https://crm.nambds.vn';
   try {
     const response = await fetch(mauticUrl, { method: 'HEAD' });
     res.status(200).json({ 
