@@ -56,17 +56,13 @@ export default function App() {
       } else {
         const errorData = await response.json();
         console.error('Form submission failed:', errorData.error);
-        // Still show thank you to user to avoid frustration, but log the error
-        setShowThankYou(true);
-        setFormState('success');
-        (e.target as HTMLFormElement).reset();
+        setFormState('idle');
+        alert('Có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại sau hoặc liên hệ trực tiếp qua số điện thoại.');
       }
     } catch (error) {
       console.error('Network error during form submission:', error);
-      // Fallback to thank you page for user experience
-      setShowThankYou(true);
-      setFormState('success');
-      (e.target as HTMLFormElement).reset();
+      setFormState('idle');
+      alert('Không thể kết nối với máy chủ. Vui lòng kiểm tra kết nối mạng của bạn.');
     }
   };
 
@@ -499,7 +495,7 @@ export default function App() {
                     </div>
                     <h3 className="text-2xl font-heading font-semibold text-slate-800 mb-2">Đăng ký thành công!</h3>
                     <p className="text-slate-600">
-                      Tài liệu đã được gửi đến email của bạn. Vui lòng kiểm tra cả hộp thư Spam nhé.
+                      Tài liệu đã được gửi đến email của bạn. Vui lòng kiểm tra cả hộp thư <strong>Spam (Thư rác)</strong> nếu không thấy trong hộp thư đến nhé.
                     </p>
                   </motion.div>
                 ) : (
