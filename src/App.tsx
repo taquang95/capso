@@ -1,13 +1,14 @@
-import { motion } from 'motion/react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   FileText, CheckCircle, AlertCircle, Clock, CreditCard, 
   ChevronRight, BookOpen, Download, Mail, Phone, MapPin,
   XCircle, CheckSquare, ArrowRight, FileCheck, Landmark,
   Menu, X, Facebook
 } from 'lucide-react';
-import { useState } from 'react';
+import ThankYou from './components/ThankYou';
 
-const FadeIn = ({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) => (
+const FadeIn = ({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string, key?: React.Key }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -22,16 +23,51 @@ const FadeIn = ({ children, delay = 0, className = "" }: { children: React.React
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [formState, setFormState] = useState<'idle' | 'loading' | 'success'>('idle');
+  const [showThankYou, setShowThankYou] = useState(false);
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormState('loading');
-    // Simulate API call
-    setTimeout(() => {
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const firstname = formData.get('firstname') as string;
+    const email = formData.get('email') as string;
+
+    try {
+      console.log('Submitting form to local API...');
+      
+      const response = await fetch('/api/submit-form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ firstname, email }),
+      });
+
+      if (response.ok) {
+        console.log('Form submission successful via server proxy');
+        setFormState('success');
+        (e.target as HTMLFormElement).reset();
+        
+        // Show thank you page immediately
+        setShowThankYou(true);
+        
+        setTimeout(() => setFormState('idle'), 5000);
+      } else {
+        const errorData = await response.json();
+        console.error('Form submission failed:', errorData.error);
+        // Still show thank you to user to avoid frustration, but log the error
+        setShowThankYou(true);
+        setFormState('success');
+        (e.target as HTMLFormElement).reset();
+      }
+    } catch (error) {
+      console.error('Network error during form submission:', error);
+      // Fallback to thank you page for user experience
+      setShowThankYou(true);
       setFormState('success');
       (e.target as HTMLFormElement).reset();
-      setTimeout(() => setFormState('idle'), 5000);
-    }, 1500);
+    }
   };
 
   const scrollTo = (id: string) => {
@@ -41,6 +77,10 @@ export default function App() {
       setIsMenuOpen(false);
     }
   };
+
+  if (showThankYou) {
+    return <ThankYou onBack={() => setShowThankYou(false)} />;
+  }
 
   return (
     <div className="min-h-screen relative selection:bg-blue-200 selection:text-blue-900">
@@ -57,7 +97,7 @@ export default function App() {
             <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-heading font-bold text-xl">
               N
             </div>
-            <span className="font-heading text-xl text-slate-800 hidden sm:block">Nguyễn Nam BĐS</span>
+            <span className="font-heading text-xl text-slate-800">Nguyễn Nam BĐS</span>
           </div>
 
           {/* Desktop Menu */}
@@ -469,6 +509,7 @@ export default function App() {
                       <input 
                         type="text" 
                         id="name" 
+                        name="firstname"
                         required
                         className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white/50"
                         placeholder="Nhập họ tên của bạn"
@@ -479,6 +520,7 @@ export default function App() {
                       <input 
                         type="email" 
                         id="email" 
+                        name="email"
                         required
                         className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white/50"
                         placeholder="example@email.com"
